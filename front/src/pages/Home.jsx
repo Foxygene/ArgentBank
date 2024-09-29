@@ -1,15 +1,14 @@
-import Header from './components/Header';
+import Header from "../components/Header";
+import chatIcon from "../assets/icons/icon-chat.png";
+import moneyIcon from "../assets/icons/icon-money.png";
+import securityIcon from "../assets/icons/icon-security.png";
+import bankTree from "../assets/img/bank-tree.jpeg";
+import Footer from "../components/Footer";
 
-import chatIcon from './assets/icons/icon-chat.png';
-import moneyIcon from './assets/icons/icon-money.png';
-import securityIcon from './assets/icons/icon-security.png';
-import bankTree from './assets/img/bank-tree.jpeg';
-import Footer from './components/Footer';
-
-function App() {
+function Home() {
   return (
     <>
-      <Header/>
+      <Header />
       <main>
         <div className="hero" style={{ backgroundImage: `url(${bankTree})` }}>
           <section className="hero-content">
@@ -25,11 +24,7 @@ function App() {
         <section className="features">
           <h2 className="sr-only">Features</h2>
           <div className="feature-item">
-            <img
-              src={chatIcon}
-              alt="Chat Icon"
-              className="feature-icon"
-            />
+            <img src={chatIcon} alt="Chat Icon" className="feature-icon" />
             <h3 className="feature-item-title">You are our #1 priority</h3>
             <p>
               Need to talk to a representative? You can get in touch through our
@@ -37,11 +32,7 @@ function App() {
             </p>
           </div>
           <div className="feature-item">
-            <img
-              src={moneyIcon}
-              alt="Money Icon"
-              className="feature-icon"
-            />
+            <img src={moneyIcon} alt="Money Icon" className="feature-icon" />
             <h3 className="feature-item-title">
               More savings means higher rates
             </h3>
@@ -63,9 +54,9 @@ function App() {
           </div>
         </section>
       </main>
-      <Footer/>
+      <Footer />
     </>
   );
 }
 
-export default App;
+export default Home;

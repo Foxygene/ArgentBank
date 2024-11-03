@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { useEffect } from "react";
+import { response } from "express";
 
 function Profile() {
   const navigate = useNavigate();
@@ -12,6 +13,26 @@ function Profile() {
 
     if (!token) {
       navigate("/signin");
+    } else {
+      const fetchUserData = async () => {
+        try {
+          await fetch("http://localhost:3001/api/v1/user/profile", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+          });
+          console.log("Fetching user data...");
+        } catch (error) {
+          console.error("Fetch error:", error);
+        }
+        const data = await response.json();
+
+        console.log(data);
+      };
+
+      fetchUserData();
     }
   }, [navigate]);
 

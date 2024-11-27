@@ -3,7 +3,7 @@ import Footer from "../components/Footer";
 import Header from "../components/Header";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { setUser, clearUser } from "../redux/userSlice";
+import { setUser } from "../redux/userSlice";
 
 function Profile() {
   const navigate = useNavigate();
@@ -11,6 +11,9 @@ function Profile() {
   const userStore = useSelector((state) => state.user);
 
   const [isLoading, setIsLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
   useEffect(() => {
     const token =
@@ -31,11 +34,11 @@ function Profile() {
               },
             }
           );
-          console.log("Fetching user data...");
           const data = await result.json();
-
           dispatch(setUser(data));
-          console.log(data);
+
+          setFirstName(data.body.firstName);
+          setLastName(data.body.lastName);
         } catch (error) {
           console.error("Fetch error:", error);
         } finally {
@@ -46,6 +49,35 @@ function Profile() {
       fetchUserData();
     }
   }, [navigate, dispatch]);
+
+  const handleNameEdit = async () => {
+    const token =
+      localStorage.getItem("token") || sessionStorage.getItem("token");
+
+    try {
+      const response = await fetch(
+        "http://localhost:3001/api/v1/user/profile",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ firstName: firstName, lastName: lastName }),
+        }
+      );
+
+      if (response.ok) {
+        const updatedUser = await response.json();
+        dispatch(setUser(updatedUser));
+        setIsEditing(false);
+      } else {
+        console.error("Failed to update profile");
+      }
+    } catch (error) {
+      console.error("Error updating profile:", error);
+    }
+  };
 
   if (isLoading) {
     return (
@@ -65,9 +97,44 @@ function Profile() {
           <h1>
             Welcome back
             <br />
-            {userStore.body.firstName} {userStore.body.lastName}
+            {isEditing ? (
+              <>
+                <input
+                  type="text"
+                  value={firstName}
+                  onChange={(e) => setFirstName(e.target.value)}
+                  placeholder="First Name"
+                />
+                <input
+                  type="text"
+                  value={lastName}
+                  onChange={(e) => setLastName(e.target.value)}
+                  placeholder="Last Name"
+                />
+              </>
+            ) : (
+              <>
+                {userStore.body.firstName} {userStore.body.lastName}
+              </>
+            )}
           </h1>
-          <button className="edit-button">Edit Name</button>
+          {isEditing ? (
+            <>
+              <button onClick={handleNameEdit} className="edit-button">
+                Save
+              </button>
+              <button
+                onClick={() => setIsEditing(false)}
+                className="edit-button"
+              >
+                Cancel
+              </button>
+            </>
+          ) : (
+            <button onClick={() => setIsEditing(true)} className="edit-button">
+              Edit Name
+            </button>
+          )}
         </div>
         <h2 className="sr-only">Accounts</h2>
         <section className="account">

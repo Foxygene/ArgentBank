@@ -1,11 +1,16 @@
 import { useNavigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
-import { useEffect } from "react";
-import { response } from "express";
+import { useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser, clearUser } from "../redux/userSlice";
 
 function Profile() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const userStore = useSelector((state) => state.user);
+
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const token =
@@ -16,27 +21,41 @@ function Profile() {
     } else {
       const fetchUserData = async () => {
         try {
-          await fetch("http://localhost:3001/api/v1/user/profile", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-          });
+          const result = await fetch(
+            "http://localhost:3001/api/v1/user/profile",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
           console.log("Fetching user data...");
+          const data = await result.json();
+
+          dispatch(setUser(data));
+          console.log(data);
         } catch (error) {
           console.error("Fetch error:", error);
+        } finally {
+          setIsLoading(false);
         }
-        const data = await response.json();
-
-        console.log(data);
       };
 
       fetchUserData();
     }
-  }, [navigate]);
+  }, [navigate, dispatch]);
 
-  console.log(localStorage.getItem("token") || sessionStorage.getItem("token"));
+  if (isLoading) {
+    return (
+      <>
+        <Header />
+        <p>Loading...</p>
+        <Footer />
+      </>
+    );
+  }
 
   return (
     <>
@@ -46,7 +65,7 @@ function Profile() {
           <h1>
             Welcome back
             <br />
-            Tony Jarvis!
+            {userStore.body.firstName} {userStore.body.lastName}
           </h1>
           <button className="edit-button">Edit Name</button>
         </div>

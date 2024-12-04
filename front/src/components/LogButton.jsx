@@ -34,7 +34,7 @@ function LogButton() {
     return (
       <div className="main-nav-logged-in">
         <Link to="/profile" className="main-nav-item">
-          <i className="fa fa-user-circle"></i> {userStore.body.firstName}
+          <i className="fa fa-user-circle"></i> {userStore?.body?.firstName}
         </Link>
         <a href="#" onClick={handleLogout} className="main-nav-item">
           <i className="fa fa-sign-out"></i> Sign Out

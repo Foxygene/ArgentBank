@@ -1,0 +1,334 @@
+swagger: "2.0"
+info:
+  title: Bank Argent API Documentation
+  description: API documentation for user authentication, profile management, and transaction handling.
+  version: "1.0.0"
+host: localhost:3001
+basePath: /api/v1
+schemes:
+  - http
+paths:
+  /user/login:
+    post:
+      tags:
+        - User Module
+      summary: Login
+      description: Authenticate a user and retrieve a JWT token.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Login payload containing email and password.
+          required: true
+          schema:
+            $ref: "#/definitions/Login"
+      responses:
+        "200":
+          description: Successfully authenticated.
+          schema:
+            $ref: "#/definitions/LoginResponse"
+        "400":
+          description: Invalid input data.
+        "500":
+          description: Internal server error.
+  /user/signup:
+    post:
+      tags:
+        - User Module
+      summary: Signup
+      description: Create a new user account.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: body
+          name: body
+          description: Signup payload containing user details.
+          required: true
+          schema:
+            $ref: "#/definitions/User"
+      responses:
+        "201":
+          description: User account created successfully.
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "400":
+          description: Invalid input data.
+        "500":
+          description: Internal server error.
+  /user/profile:
+    get:
+      security:
+        - Bearer: []
+      tags:
+        - User Module
+      summary: Get user profile
+      description: Retrieve the authenticated user's profile information.
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          description: Bearer JWT token for authentication.
+          required: true
+          type: string
+      responses:
+        "200":
+          description: User profile retrieved successfully.
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "401":
+          description: Unauthorized access.
+        "500":
+          description: Internal server error.
+    put:
+      security:
+        - Bearer: []
+      tags:
+        - User Module
+      summary: Update user profile
+      description: Update the authenticated user's profile details.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          description: Bearer JWT token for authentication.
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: Updated profile details.
+          required: true
+          schema:
+            $ref: "#/definitions/UserProfile"
+      responses:
+        "200":
+          description: User profile updated successfully.
+          schema:
+            $ref: "#/definitions/ApiResponse"
+        "400":
+          description: Invalid input data.
+        "401":
+          description: Unauthorized access.
+        "500":
+          description: Internal server error.
+  /user/transactions:
+    get:
+      security:
+        - Bearer: []
+      tags:
+        - Transaction Module
+      summary: Get trimmed transactions
+      description: Retrieve a list of transactions containing only `date`, `description`, and `amount`.
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          description: Bearer JWT token for authentication.
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Transactions retrieved successfully.
+          schema:
+            type: array
+            items:
+              $ref: "#/definitions/TrimmedTransaction"
+        "401":
+          description: Unauthorized access.
+        "403":
+          description: Forbidden access.
+        "500":
+          description: Internal server error.
+  /user/transactions/{transactionId}:
+    get:
+      security:
+        - Bearer: []
+      tags:
+        - Transaction Module
+      summary: Get transaction details
+      description: Retrieve full details of a specific transaction by ID.
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          description: Bearer JWT token for authentication.
+          required: true
+          type: string
+        - in: path
+          name: transactionId
+          description: Unique ID of the transaction.
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Transaction details retrieved successfully.
+          schema:
+            $ref: "#/definitions/Transaction"
+        "404":
+          description: Transaction not found.
+        "401":
+          description: Unauthorized access.
+        "403":
+          description: Forbidden access.
+        "500":
+          description: Internal server error.
+  /user/transactions/update/{transactionId}:
+    put:
+      security:
+        - Bearer: []
+      tags:
+        - Transaction Module
+      summary: Update transaction details
+      description: Update the category and notes of a specific transaction by ID.
+      consumes:
+        - application/json
+      produces:
+        - application/json
+      parameters:
+        - in: header
+          name: Authorization
+          description: Bearer JWT token for authentication.
+          required: true
+          type: string
+        - in: path
+          name: transactionId
+          description: Unique ID of the transaction to update.
+          required: true
+          type: string
+        - in: body
+          name: body
+          description: Payload with updated category and notes.
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateTransactionCategoryNotes"
+      responses:
+        "200":
+          description: Transaction updated successfully.
+        "400":
+          description: Invalid input data.
+        "401":
+          description: Unauthorized access.
+        "403":
+          description: Forbidden access.
+        "404":
+          description: Transaction not found.
+        "500":
+          description: Internal server error.
+securityDefinitions:
+  Bearer:
+    type: apiKey
+    name: Authorization
+    in: header
+definitions:
+  User:
+    type: object
+    properties:
+      email:
+        type: string
+        description: User's email address.
+      password:
+        type: string
+        description: User's password.
+      firstName:
+        type: string
+        description: User's first name.
+      lastName:
+        type: string
+        description: User's last name.
+  Login:
+    type: object
+    properties:
+      email:
+        type: string
+        description: User's email address.
+      password:
+        type: string
+        description: User's password.
+  ApiResponse:
+    type: object
+    properties:
+      status:
+        type: integer
+        description: HTTP status code.
+      message:
+        type: string
+        description: Response message.
+      body:
+        type: object
+        additionalProperties: true
+  LoginResponse:
+    type: object
+    properties:
+      token:
+        type: string
+        description: JWT token for authentication.
+  UserProfile:
+    type: object
+    properties:
+      firstName:
+        type: string
+      lastName:
+        type: string
+  TrimmedTransaction:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Transaction ID.
+      date:
+        type: string
+        format: date
+        description: Transaction date.
+      description:
+        type: string
+        description: Brief description of the transaction.
+      amount:
+        type: number
+        description: Transaction amount.
+  Transaction:
+    type: object
+    properties:
+      id:
+        type: string
+        description: Transaction ID.
+      accountId:
+        type: string
+        description: Account ID linked to the transaction.
+      amount:
+        type: number
+        description: Transaction amount.
+      date:
+        type: string
+        format: date
+        description: Transaction date.
+      category:
+        type: string
+        description: Transaction category.
+      notes:
+        type: string
+        description: Notes about the transaction.
+      description:
+        type: string
+        description: Brief description of the transaction.
+      transactionType:
+        type: string
+        description: Type of the transaction (e.g., debit, credit).
+  UpdateTransactionCategoryNotes:
+    type: object
+    properties:
+      category:
+        type: string
+        description: New category for the transaction.
+      notes:
+        type: string
+        description: New notes for the transaction.
